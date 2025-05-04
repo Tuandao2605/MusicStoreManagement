@@ -1,14 +1,13 @@
 if (-not (Test-Path "release")) {
-    # Tạo thư mục release nếu chưa tồn tại
     New-Item -ItemType Directory -Path "release" | Out-Null
 }
 
-g++ source\music_repository.cpp source\main.cpp -I"C:\Program Files\MySQL\MySQL Server 9.3\include" -L"C:\Program Files\MySQL\MySQL Server 9.3\lib" -lmysql -o release/main.exe
+g++ source\widget\home_screen.cpp source\widget\button.cpp source\widget\widget.cpp source\music_repository.cpp source\main.cpp -I"C:\Program Files\MySQL\MySQL Server 9.3\include" -L"C:\Program Files\MySQL\MySQL Server 9.3\lib" -lmysql -mwindows -o release\main.exe
 
 if ($?) {
-    Write-Host "Build thành công: release\main.exe"
+    Write-Host "✅ build successfull: release\main.exe"
 } else {
-    Write-Host "Build thất bại"
+    Write-Host "❌ build failed"
 }
 
 $dbHost = "127.0.0.1"

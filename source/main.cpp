@@ -11,105 +11,95 @@
 #include "mysql.h"
 
 #include "music_repository.h"
+
+#include "widget/export.h"
+
 using namespace std;
 
-int main(int argc, char *argv[])
+const int SCREEN_WIDTH = 1200;
+const int SCREEN_HEIGHT = 900;
+const char *WINDOW_TITLE = "Music Store Management System";
+const char WINDOW_CLASS_NAME[] = "MusicStoreWindowClass";
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    static HomeScreen* homeWidget = nullptr;
 
-    if (argc != 6)
+    switch (uMsg)
     {
-        cout << "Usage: " << argv[0] << " <host> <user> <password> <database> <port>" << endl;
-        return 1;
-    }
-    const char *host = argv[1];
-    const char *user = argv[2];
-    const char *password = argv[3];
-    const char *database = argv[4];
-    unsigned int port = atoi(argv[5]);
-    cout << "Host: " << host << endl;
-    cout << "User: " << user << endl;
-    cout << "Password: " << (password ? password : "null") << endl;
-    cout << "Database: " << database << endl;
-    cout << "Port: " << port << endl;
-    cout << "------------------------" << endl;
+    case WM_CREATE:
+        homeWidget = new HomeScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+        return 0;
 
-    // MusicRepository *musicRepository = new MusicRepository();
-    MusicRepository *musicRepository = new MusicRepository(host, user, password, database, port);
-
-reset:
-    musicRepository->resetToDefault();
-
-    int chooseOneFromMenu = 0;
-    char exitSurity;
-    // Variables End
-
-    cout << "Welcome To Music Store" << endl;
-    cout << "Music Store Menu" << endl;
-    cout << "1. Create Order." << endl;
-    cout << "2. Find Music." << endl;
-    cout << "3. Sold Items." << endl;
-    cout << "4. Item in Stock." << endl;
-    cout << "5. All Items." << endl;
-    cout << "6. Add New Item." << endl;
-    cout << "7. Edit Item." << endl;
-    cout << "8. Remove Item." << endl;
-    cout << "9. Exit." << endl;
-    cout << "Choose One: ";
-    cin >> chooseOneFromMenu;
-
-    switch (chooseOneFromMenu)
+    case WM_PAINT:
     {
-    case 1:
-        musicRepository->CreateOrder();
-        break;
-    case 2:
-        musicRepository->FindMusic();
-        break;
-    case 3:
-        musicRepository->SoldItems();
-        break;
-    case 4:
-        musicRepository->ItemInStock();
-        break;
-    case 5:
-        musicRepository->ShowAllItems();
-        break;
-    case 6:
-        musicRepository->AddNewItemInDatabase();
-        break;
-    case 7:
-        musicRepository->EditItem();
-        break;
-    case 8:
-        musicRepository->RemoveItem();
-        break;
-    case 9:
-    ExitProgram:
-        cout << "Program terminating. Are you sure? (y/N): ";
-        cin >> exitSurity;
-        if (exitSurity == 'y' || exitSurity == 'Y')
-        {
-            return 0;
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+        if (homeWidget) {
+            homeWidget->display(hdc);
         }
-        else if (exitSurity == 'n' || exitSurity == 'N')
-        {
-            goto reset;
-        }
-        else
-        {
-            cout << "Next time choose after read the corresponding line." << endl;
-            goto ExitProgram;
-        }
-        break;
-    default:
-        cout << "Please choose between 1 - 7. Press Enter To Continue...";
-        getch();
-        goto reset;
-        break;
+        EndPaint(hwnd, &ps);
+        return 0;
     }
-    if (musicRepository->isReset())
+
+    case WM_KEYDOWN:
+        if (homeWidget) {
+            switch (wParam)
+            {
+            case VK_UP:
+                homeWidget->previousItem();
+                InvalidateRect(hwnd, NULL, TRUE);
+                break;
+            case VK_DOWN:
+                homeWidget->nextItem();
+                InvalidateRect(hwnd, NULL, TRUE);
+                break;
+            }
+        }
+        return 0;
+
+    case WM_DESTROY:
+        delete homeWidget;
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+{
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = WINDOW_CLASS_NAME;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+
+    RegisterClass(&wc);
+
+    HWND hwnd = CreateWindowEx(
+        0,                   // Extended style
+        WINDOW_CLASS_NAME,   // Class name
+        WINDOW_TITLE,        // Title
+        WS_OVERLAPPEDWINDOW, // Style
+
+        CW_USEDEFAULT, CW_USEDEFAULT, SCREEN_WIDTH, SCREEN_HEIGHT,
+        NULL, NULL, hInstance, NULL);
+
+    if (hwnd == NULL)
+        return 0;
+
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
+
+    // Message loop
+    MSG msg = {};
+    while (GetMessage(&msg, NULL, 0, 0))
     {
-        goto reset;
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
-    return 0;
+
+    return (int)msg.wParam;
 }
