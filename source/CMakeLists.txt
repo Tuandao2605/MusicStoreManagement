@@ -36,14 +36,15 @@ add_executable(video-app
         src/music_store/music_repository.h
         src/music_store/music_repository.cpp
         src/ui/home/home_screen.h
-        src/add_new_item/add_item_screen.cpp
-        src/add_new_item/add_item_screen.h
-        src/all_items/show_all_items_screen.cpp
-        src/all_items/show_all_items_screen.h
-        src/item_in_stock/item_in_stock_screen.cpp
-        src/item_in_stock/item_in_stock_screen.h
-        src/find/find_music_screen.cpp
-        src/find/find_music_screen.h
+        src/ui/add_new_item/add_item_screen.cpp
+        src/ui/add_new_item/add_item_screen.h
+        src/ui/all_items/show_all_items_screen.cpp
+        src/ui/all_items/show_all_items_screen.h
+        src/ui/item_in_stock/item_in_stock_screen.cpp
+        src/ui/item_in_stock/item_in_stock_screen.h
+        src/ui/find/find_music_screen.cpp
+        src/ui/find/find_music_screen.h
+        src/music_store/music_item.h
 )
 
 target_include_directories(imgui PUBLIC

@@ -1,10 +1,8 @@
 // item_in_stock_screen.cpp
-#include "ItemInStockScreen.h"
+#include "item_in_stock_screen.h"
 #include "imgui.h"
-#include <vector>
-#include <string>
 
-void ItemInStockScreen::render() {
+void item_in_stock_screen::render() {
     ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
                            ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(700, 500), ImGuiCond_FirstUseEver);

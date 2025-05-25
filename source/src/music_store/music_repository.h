@@ -5,9 +5,13 @@
 #include<sstream>
 #include<string>
 #include<cstdlib>
+
+#include "music_item.h"
+
 extern "C" {
 #include "mysql.h"
 }
+
 using namespace std;
 
 
@@ -28,16 +32,28 @@ public:
     ~MusicRepository();
 
 
-    void AddNewItemInDatabase();
-    void ShowAllItems();
+    bool AddNewItemInDatabase(const string &category, const string &type, const string &name, const string &artist,
+                              float price, int quantity);
+
+    std::vector<MusicItem> GetAllItems();
+
     void ItemInStock();
-    void FindMusic();
+
+    std::vector<MusicItem> FindMusic(const string &name, const string &category, const string &type,
+                                     const string &artist);
+
     void EditItem();
+
     void RemoveItem();
+
     void CreateOrder();
+
     void SoldItems();
+
     bool isReset() const;
+
     void resetToDefault();
+
     bool connectToDatabase(
         const char *host,
         const char *user,
@@ -45,11 +61,26 @@ public:
         const char *db,
         unsigned int port
     );
-private:
 
+    void AddItem(const MusicItem &music_item) {
+        AddNewItemInDatabase(
+            music_item.category,
+            music_item.type,
+            music_item.name,
+            music_item.artist,
+            music_item.price,
+            music_item.quantity
+        );
+    }
+
+    void UpdateItem(const MusicItem &music_item) {
+        // TODO: Implement the update logic
+    }
+
+private:
     bool reset;
-    MYSQL* conn;
-    MYSQL_RES* res;
+    MYSQL *conn;
+    MYSQL_RES *res;
     MYSQL_ROW row;
     int qstate;
 };

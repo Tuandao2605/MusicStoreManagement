@@ -1,19 +1,22 @@
 #pragma once
 #include <string>
 
-#include "../ui/core/screen.h"
+#include "../../music_store/music_repository.h"
+#include "../core/screen.h"
 
 class AddItemScreen final : public Screen {
-private:
     std::string category = "";
     std::string type = "";
     std::string name = "";
     std::string artist = "";
     float price = 0.0;
     int quantity = 0;
+    MusicRepository *music_repository;
 
 public:
-    AddItemScreen() = default;
+    explicit AddItemScreen(MusicRepository *music_repository)
+        : music_repository(music_repository) {
+    }
 
     void render() override;
 };

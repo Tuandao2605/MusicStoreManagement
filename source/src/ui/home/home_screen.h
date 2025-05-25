@@ -3,35 +3,87 @@
 #include "../core/screen.h"
 
 class HomeScreen final : public Screen {
+private:
+    VoidCallback AddNewItemInDatabase;
+    VoidCallback ShowAllItems;
+    VoidCallback ItemInStock;
+    VoidCallback FindMusic;
+    VoidCallback EditItem;
+    VoidCallback RemoveItem;
+    VoidCallback CreateOrder;
+    VoidCallback SoldItems;
+
 public:
-    HomeScreen(): Screen() {
+    HomeScreen(
+        const VoidCallback &AddNewItemInDatabase,
+        const VoidCallback &ShowAllItems,
+        const VoidCallback &ItemInStock,
+        const VoidCallback &FindMusic,
+        const VoidCallback &EditItem,
+        const VoidCallback &RemoveItem,
+        const VoidCallback &CreateOrder,
+        const VoidCallback &SoldItems
+    ): AddNewItemInDatabase(AddNewItemInDatabase),
+       ShowAllItems(ShowAllItems),
+       ItemInStock(ItemInStock),
+       FindMusic(FindMusic),
+       EditItem(EditItem),
+       RemoveItem(RemoveItem),
+       CreateOrder(CreateOrder),
+       SoldItems(SoldItems) {
     }
 
     void render() override {
-        ImGui::Begin("Home Screen");
+        // Center the window
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
+                               ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
-        if (ImGui::Button("Add New Item In Database")) {
+        ImGui::Begin("Music Store Management System", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        ImGui::Text("Inventory Management");
+        ImGui::Separator();
+
+        const float buttonWidth = ImGui::GetContentRegionAvail().x;
+
+        if (ImGui::Button("Add New Item In Database", ImVec2(buttonWidth, 0))) {
+            if (AddNewItemInDatabase) AddNewItemInDatabase();
         }
 
-        if (ImGui::Button("Show All Items")) {
+        if (ImGui::Button("Show All Items", ImVec2(buttonWidth, 0))) {
+            if (ShowAllItems) ShowAllItems();
         }
 
-        if (ImGui::Button("Item In Stock")) {
+        if (ImGui::Button("Item In Stock", ImVec2(buttonWidth, 0))) {
+            if (ItemInStock) ItemInStock();
         }
 
-        if (ImGui::Button("Find Music")) {
+        if (ImGui::Button("Find Music", ImVec2(buttonWidth, 0))) {
+            if (FindMusic) FindMusic();
         }
 
-        if (ImGui::Button("Edit Item")) {
+        ImGui::Spacing();
+        ImGui::Text("Item Operations");
+        ImGui::Separator();
+
+        if (ImGui::Button("Edit Item", ImVec2(buttonWidth, 0))) {
+            if (EditItem) EditItem();
         }
 
-        if (ImGui::Button("Remove Item")) {
+        if (ImGui::Button("Remove Item", ImVec2(buttonWidth, 0))) {
+            if (RemoveItem) RemoveItem();
         }
 
-        if (ImGui::Button("Create Order")) {
+        ImGui::Spacing();
+        ImGui::Text("Sales Management");
+        ImGui::Separator();
+
+        if (ImGui::Button("Create Order", ImVec2(buttonWidth, 0))) {
+            if (CreateOrder) CreateOrder();
         }
 
-        if (ImGui::Button("Sold Items")) {
+        if (ImGui::Button("Sold Items", ImVec2(buttonWidth, 0))) {
+            if (SoldItems) SoldItems();
         }
 
         ImGui::End();

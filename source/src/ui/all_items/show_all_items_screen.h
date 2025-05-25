@@ -1,6 +1,6 @@
 #pragma once
-#include "../music_store/music_repository.h"
-#include "../ui/core/screen.h"
+#include "../../music_store/music_repository.h"
+#include "../core/screen.h"
 
 
 class ShowAllItemsScreen final : public Screen {

@@ -1,279 +1,127 @@
 #include "music_repository.h"
 
-MusicRepository::MusicRepository()
-{
+MusicRepository::MusicRepository() {
     // create connection
     reset = false;
     conn = mysql_init(0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected" << endl;
         cout << "Press any key to continue..." << endl;
-    }
-    else
+    } else
         cout << "Failed To Connect!" << mysql_errno(conn) << endl;
     conn = mysql_real_connect(conn, "127.0.0.1", "root", "root", "test", 3306, NULL, 0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected To MySql" << conn << endl;
         cout << "Press any key to continue..." << endl;
-    }
-    else
+    } else
         cout << "Failed To Connect!" << mysql_errno(conn) << endl;
 }
 
-MusicRepository::MusicRepository(const char *host, const char *user, const char *passwd, const char *db, unsigned int port)
-{
+MusicRepository::MusicRepository(const char *host, const char *user, const char *passwd, const char *db,
+                                 unsigned int port) {
     reset = false;
     conn = mysql_init(0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected" << endl;
         cout << "Press any key to continue..." << endl;
-    }
-    else
+    } else
         cout << "Failed To Connect!" << mysql_errno(conn) << endl;
     conn = mysql_real_connect(conn, host, user, passwd, db, port, NULL, 0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected To MySql" << conn << endl;
         cout << "Press any key to continue..." << endl;
-    }
-    else
+    } else
         cout << "Failed To Connect!" << mysql_errno(conn) << endl;
 }
 
-MusicRepository::~MusicRepository()
-{
+MusicRepository::~MusicRepository() {
     // Close connection
     mysql_close(conn);
     cout << "Database Disconnected" << endl;
     cout << "Press any key to continue..." << endl;
 }
 
-void MusicRepository::AddNewItemInDatabase()
-{
-    string category = "";
-    string type = "";
-    string name = "";
-    string artist = "";
-    float price = 0.0;
-    int quantity = 0;
-    char choose;
-    // Variables End
+bool MusicRepository::AddNewItemInDatabase(const string &category, const string &type, const string &name,
+                                           const string &artist, const float price, const int quantity) {
+    const string insert_query =
+            "insert into musicinfo_tb (m_category, m_type, m_name, m_artist, m_price, m_quantity) values ('" + category
+            + "','" + type + "','" + name + "','" + artist + "','" + to_string(price) + "','" + to_string(quantity) +
+            "')";
 
-    cout << "Welcome To Music Store" << endl << endl;
-    cout << "Add New Item Menu" << endl << endl;
-
-    cin.ignore(1, '\n');
-    cout << "Enter Category: ";
-    getline(cin, category);
-    cout << "Enter Type: ";
-    getline(cin, type);
-    cout << "Enter Name: ";
-    getline(cin, name);
-    cout << "Enter Artist: ";
-    getline(cin, artist);
-    cout << "Enter Price: ";
-    cin >> price;
-    cout << "Enter Quantity: ";
-    cin >> quantity;
-
-    stringstream streamPrice, streamQuan;
-    string sprice, squan;
-    streamPrice << price;
-    streamPrice >> sprice;
-    streamQuan << quantity;
-    streamQuan >> squan;
-
-
-    string insert_query = "insert into musicinfo_tb (m_category, m_type, m_name, m_artist, m_price, m_quantity) values ('"+category+"','"+type+"','"+name+"','"+artist+"','"+sprice+"','"+squan+"')";
-
-    const char* q = insert_query.   c_str(); // c_str converts string to constant char and this is required
+    const char *q = insert_query.c_str();
 
     qstate = mysql_query(conn, q);
 
-    if (!qstate)
-    {
-        cout << endl << "Successfully added in database." << endl;
+    if (!qstate) {
+        return true;
     }
-    else
-    {
-        cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
-    }
-
-    // Exit Code
-    cout << "Press 'm' to Menu and 'a' to Insert Again Or Any Other key to exit: ";
-    cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
-        reset = true;
-    }
-    else if (choose == 'a' || choose == 'A')
-    {
-        AddNewItemInDatabase();
-    }
-    else
-    {
-        exit(0);
-    }
+    return false;
 }
 
-
-
-void MusicRepository::ShowAllItems()
-{
-    char choose;
-
-    cout << "Welcome To Music Store" << endl << endl;
-    cout << "Show All Items Menu" << endl << endl;
-
+std::vector<MusicItem> MusicRepository::GetAllItems() {
+    std::vector<MusicItem> items;
     qstate = mysql_query(conn, "select * from musicinfo_tb");
-    if (!qstate)
-    {
+    if (!qstate) {
         res = mysql_store_result(conn);
-        while ((row = mysql_fetch_row(res)))
-        {
-            cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3] << "\nArtist: " << row[4] << "\nPrice: " << row[5] << "\nQuantity: " << row[6] << endl << endl;
+        while ((row = mysql_fetch_row(res))) {
+            MusicItem item;
+            item.id = atoi(row[0]);
+            item.category = row[1];
+            item.type = row[2];
+            item.name = row[3];
+            item.artist = row[4];
+            item.price = atof(row[5]);
+            item.quantity = atoi(row[6]);
+            items.push_back(item);
         }
     }
-    else
-    {
-        cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
-    }
-
-    // Exit Code
-    cout << "Press 'm' to Menu and any other key to Exit: ";
-    cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
-        reset = true;
-    }
-    else
-    {
-        exit(0);
-    }
+    return items;
 }
 
-void MusicRepository::ItemInStock()
-{
-
+void MusicRepository::ItemInStock() {
     char choose;
 
     cout << "Welcome To Music Store" << endl << endl;
     cout << "Items In Stock Menu" << endl << endl;
 
     qstate = mysql_query(conn, "select m_name, m_artist, m_price, m_quantity from musicinfo_tb");
-    if (!qstate)
-    {
+    if (!qstate) {
         res = mysql_store_result(conn);
-        while ((row = mysql_fetch_row(res)))
-        {
-            if (atoi(row[3]) > 0)
-            {
-                cout << "Name: " << row[0] << "\nArtist: " << row[1] << "\nPrice: " << row[2] << "\nQuantity: " << row[3] << endl << endl;
+        while ((row = mysql_fetch_row(res))) {
+            if (atoi(row[3]) > 0) {
+                cout << "Name: " << row[0] << "\nArtist: " << row[1] << "\nPrice: " << row[2] << "\nQuantity: " << row[
+                    3] << endl << endl;
             }
         }
-    }
-    else
-    {
+    } else {
         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
     }
 
     cout << "Press 'm' to Menu and any other key to Exit: ";
     cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
+    if (choose == 'm' || choose == 'M') {
         reset = true;
-    }
-    else
-    {
+    } else {
         exit(0);
     }
 }
 
-void MusicRepository::FindMusic()
-{
-    // Variables
-    char choose;
-    string input;
-    // Variables End
-
-    cout << "Welcome To Music Store" << endl << endl;
-    cout << "Find Music Menu" << endl << endl;
-
-    cout << "Find by \n1. Name\n2. Category\n3. Type\n4. Artist\nAny other number to Menu" << endl;
-    cout << "Choose One: "; cin >> choose;
-
-    cin.ignore(1, '\n');
-    if (choose == '1')
-    {
-        cout << "Enter Name: "; getline(cin, input);
-        string findbyname_query = "select * from musicinfo_tb where m_name like '"+input+"%'";
-        const char* qn = findbyname_query.c_str();
-        qstate = mysql_query(conn, qn);
-    }
-    else if (choose == '2')
-    {
-        cout << "Enter Category: "; getline(cin, input);
-        string findbycategory_query = "select * from musicinfo_tb where m_category like '"+input+"%'";
-        const char* qc = findbycategory_query.c_str();
-        qstate = mysql_query(conn, qc);
-    }
-    else if (choose == '3')
-    {
-        cout << "Enter Type: "; getline(cin, input);
-        string findbytype_query = "select * from musicinfo_tb where m_type like '"+input+"%'";
-        const char* qt = findbytype_query.c_str();
-        qstate = mysql_query(conn, qt);
-    }
-    else if (choose == '4')
-    {
-        cout << "Enter Artist: "; getline(cin, input);
-        string findbyartist_query = "select * from musicinfo_tb where m_artist like '"+input+"%'";
-        const char* qa = findbyartist_query.c_str();
-        qstate = mysql_query(conn, qa);
-    }else
-    {
-        goto ExitMenu;
-    }
-
-    cout << endl;
-    if (choose == '1' || choose == '2' || choose == '3' || choose == '4')
-    {
-        if (!qstate)
-        {
-            res = mysql_store_result(conn);
-            while ((row = mysql_fetch_row(res)))
-            {
-                cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3] << "\nArtist: " << row[4] << "\nPrice: " << row[5] << "\nQuantity: " << row[6] << endl << endl;
-            }
-        }
-        else
-        {
-            cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
+std::vector<MusicItem> MusicRepository::FindMusic(const string &name, const string &category, const string &type,
+                                                  const string &artist) {
+    const std::vector<MusicItem> items = GetAllItems();
+    std::vector<MusicItem> foundItems;
+    for (const auto &item: items) {
+        if ((!name.empty() && item.name.find(name) != string::npos) ||
+            (!category.empty() && item.category.find(category) != string::npos) ||
+            (!type.empty() && item.type.find(type) != string::npos) ||
+            (!artist.empty() && item.artist.find(artist) != string::npos)) {
+            foundItems.push_back(item);
         }
     }
-
-    ExitMenu:
-    cout << "Press 'm' to Menu, 'a' to Search again and any other key to Exit: ";
-    cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
-        reset = true;
-    }
-    else if (choose == 'a' || choose == 'A')
-    {
-        FindMusic();
-    }
-    else
-    {
-        exit(0);
-    }
+    return foundItems;
 }
 
-void MusicRepository::EditItem()
-{
+void MusicRepository::EditItem() {
     // Variables
     string category = "";
     string type = "";
@@ -302,68 +150,56 @@ void MusicRepository::EditItem()
     cout << "Edit Item Menu" << endl << endl;
 
     qstate = mysql_query(conn, "select m_id, m_name from musicinfo_tb");
-    if (!qstate)
-    {
+    if (!qstate) {
         res = mysql_store_result(conn);
         cout << "ID\tName\n" << endl;
-        while ((row = mysql_fetch_row(res)))
-        {
+        while ((row = mysql_fetch_row(res))) {
             cout << row[0] << "\t" << row[1] << endl;
             items[indexForId] = row[0];
             indexForId++;
         }
-    }
-    else
-    {
+    } else {
         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
     }
 
-    try
-    {
+    try {
         cout << endl;
         cout << "Enter Item ID: ";
         cin >> itemId;
         cout << endl;
-    }
-    catch (exception e)
-    {
+    } catch (exception e) {
         cout << "Please Enter a valid NUMBER." << endl;
         HaveException = true;
         goto ExitMenu;
     }
 
-    if (HaveException == false)
-    {
+    if (HaveException == false) {
         stringstream streamid;
         string strid;
         streamid << itemId;
         streamid >> strid;
 
-        for (int i = 0; i < indexForId; i++)
-        {
-            if (strid != items[i])
-            {
+        for (int i = 0; i < indexForId; i++) {
+            if (strid != items[i]) {
                 NotInDatabase = true;
-            }else
-            {
+            } else {
                 NotInDatabase = false;
                 break;
             }
         }
 
-        if (NotInDatabase == false)
-        {
-            string findbyid_query = "select * from musicinfo_tb where m_id = '"+strid+"'";
-            const char* qi = findbyid_query.c_str();
+        if (NotInDatabase == false) {
+            string findbyid_query = "select * from musicinfo_tb where m_id = '" + strid + "'";
+            const char *qi = findbyid_query.c_str();
             qstate = mysql_query(conn, qi);
 
-            if (!qstate)
-            {
+            if (!qstate) {
                 res = mysql_store_result(conn);
                 cout << endl;
-                while ((row = mysql_fetch_row(res)))
-                {
-                    cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3] << "\nArtist: " << row[4] << "\nPrice: " << row[5] << "\nQuantity: " << row[6] << endl << endl;
+                while ((row = mysql_fetch_row(res))) {
+                    cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3]
+                            << "\nArtist: " << row[4] << "\nPrice: " << row[5] << "\nQuantity: " << row[6] << endl <<
+                            endl;
                     storeid = row[0];
                     storecategory = row[1];
                     storetype = row[2];
@@ -372,90 +208,71 @@ void MusicRepository::EditItem()
                     storeprice = row[5];
                     storequantity = row[6];
                 }
-            }
-            else
-            {
+            } else {
                 cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
             }
 
             cin.ignore(1, '\n');
             cout << "Enter Category (xN to not change): ";
             getline(cin, category);
-            if (category == "xN")
-            {
+            if (category == "xN") {
                 category = storecategory;
             }
             cout << "Enter Type (xN to not change): ";
             getline(cin, type);
-            if (type == "xN")
-            {
+            if (type == "xN") {
                 type = storetype;
             }
             cout << "Enter Name (xN to not change): ";
             getline(cin, name);
-            if (name == "xN")
-            {
+            if (name == "xN") {
                 name = storename;
             }
             cout << "Enter Artist (xN to not change): ";
             getline(cin, artist);
-            if (artist == "xN")
-            {
+            if (artist == "xN") {
                 artist = storeartist;
             }
             cout << "Enter Price (xN to not change): ";
             cin >> price;
-            if (price == "xN")
-            {
+            if (price == "xN") {
                 category = storecategory;
             }
             cout << "Enter Quantity (xN to not change): ";
             cin >> quantity;
-            if (quantity == "xN")
-            {
+            if (quantity == "xN") {
                 quantity = storequantity;
             }
 
-            string update_query = "update musicinfo_tb set m_category = '"+category+"', m_type = '"+type+"', m_name = '"+name+"', m_artist = '"+artist+"', m_price = '"+price+"', m_quantity = '"+quantity+"' where m_id = '"+strid+"'";
-            const char* qu = update_query.c_str();
+            string update_query = "update musicinfo_tb set m_category = '" + category + "', m_type = '" + type +
+                                  "', m_name = '" + name + "', m_artist = '" + artist + "', m_price = '" + price +
+                                  "', m_quantity = '" + quantity + "' where m_id = '" + strid + "'";
+            const char *qu = update_query.c_str();
             qstate = mysql_query(conn, qu);
 
-            if (!qstate)
-            {
+            if (!qstate) {
                 cout << endl << "Successfully Saved In Database." << endl;
-            }
-            else
-            {
+            } else {
                 cout << "Failed To Update!" << mysql_errno(conn) << endl;
             }
-
-        }
-        else
-        {
+        } else {
             cout << "Item Not Found in database." << endl;
         }
     }
 
-    ExitMenu:
+ExitMenu:
     cout << "Press 'm' to Menu, 'e' to edit another item and any other key to Exit: ";
     cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
+    if (choose == 'm' || choose == 'M') {
         reset = true;
-    }
-    else if (choose == 'e' || choose == 'E')
-    {
+    } else if (choose == 'e' || choose == 'E') {
         EditItem();
-    }
-    else
-    {
+    } else {
         exit(0);
     }
 }
 
-void MusicRepository::RemoveItem()
-{
-
+void MusicRepository::RemoveItem() {
     // Variables
     char choose;
     int itemId;
@@ -468,97 +285,73 @@ void MusicRepository::RemoveItem()
     cout << "Remove Item Menu" << endl << endl;
 
     qstate = mysql_query(conn, "select m_id, m_name from musicinfo_tb");
-    if (!qstate)
-    {
+    if (!qstate) {
         res = mysql_store_result(conn);
         cout << "ID\tName\n" << endl;
-        while ((row = mysql_fetch_row(res)))
-        {
+        while ((row = mysql_fetch_row(res))) {
             cout << row[0] << "\t" << row[1] << endl;
             items[indexForId] = row[0];
             indexForId++;
         }
-    }
-    else
-    {
+    } else {
         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
     }
 
-    try
-    {
+    try {
         cout << endl;
         cout << "Enter Item ID: ";
         cin >> itemId;
         cout << endl;
-    }
-    catch (exception e)
-    {
+    } catch (exception e) {
         cout << "Please Enter a valid NUMBER." << endl;
         HaveException = true;
         goto ExitMenu;
     }
 
-    if (HaveException == false)
-    {
+    if (HaveException == false) {
         stringstream streamid;
         string strid;
         streamid << itemId;
         streamid >> strid;
 
-        for (int i = 0; i < indexForId; i++)
-        {
-            if (strid != items[i])
-            {
+        for (int i = 0; i < indexForId; i++) {
+            if (strid != items[i]) {
                 NotInDatabase = true;
-            }else
-            {
+            } else {
                 NotInDatabase = false;
                 break;
             }
         }
 
-        if (NotInDatabase == false)
-        {
-            string delete_query = "delete from musicinfo_tb where m_id = '"+strid+"'";
-            const char* qd = delete_query.c_str();
+        if (NotInDatabase == false) {
+            string delete_query = "delete from musicinfo_tb where m_id = '" + strid + "'";
+            const char *qd = delete_query.c_str();
             qstate = mysql_query(conn, qd);
 
-            if (!qstate)
-            {
+            if (!qstate) {
                 cout << "Successfully Deleted From Database." << endl;
-            }
-            else
-            {
+            } else {
                 cout << "Failed To Delete!" << mysql_errno(conn) << endl;
             }
-
-        }
-        else
-        {
+        } else {
             cout << "Item Not Found in database." << endl;
         }
     }
 
     // Exit Code
-    ExitMenu:
+ExitMenu:
     cout << "Press 'm' to Menu, 'd' to delete another item and any other key to Exit: ";
     cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
+    if (choose == 'm' || choose == 'M') {
         reset = true;
-    }
-    else if (choose == 'd' || choose == 'D')
-    {
+    } else if (choose == 'd' || choose == 'D') {
         EditItem();
-    }
-    else
-    {
+    } else {
         exit(0);
     }
 }
-void MusicRepository::CreateOrder()
-{
 
+void MusicRepository::CreateOrder() {
     // Variables
     char choose;
     string getId = "";
@@ -583,14 +376,12 @@ void MusicRepository::CreateOrder()
     cout << "Show All Items Menu" << endl << endl;
 
     qstate = mysql_query(conn, "select * from musicinfo_tb");
-    if (!qstate)
-    {
+    if (!qstate) {
         res = mysql_store_result(conn);
-        while ((row = mysql_fetch_row(res)))
-        {
-            if (atoi(row[6]) > 0)
-            {
-                cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3] << "\nArtist: " << row[4] << "\nPrice: " << row[5] << endl << endl;
+        while ((row = mysql_fetch_row(res))) {
+            if (atoi(row[6]) > 0) {
+                cout << "ID: " << row[0] << "\nCategory: " << row[1] << "\nType: " << row[2] << "\nName: " << row[3] <<
+                        "\nArtist: " << row[4] << "\nPrice: " << row[5] << endl << endl;
                 storeId[storeIndex] = row[0];
                 storeCategory[storeIndex] = row[1];
                 storeType[storeIndex] = row[2];
@@ -601,37 +392,26 @@ void MusicRepository::CreateOrder()
                 storeIndex++;
             }
         }
-    }
-    else
-    {
+    } else {
         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
     }
 
-    for (itemIndex = 0;;itemIndex++)
-    {
+    for (itemIndex = 0;; itemIndex++) {
         cout << "Enter a Music ID's (q to exit): ";
         cin >> getId;
-        if (getId == "q")
-        {
+        if (getId == "q") {
             break;
-        }
-        else
-        {
-            for(int i = 0; i < storeIndex; i++)
-            {
-                if (getId == storeId[i])
-                {
+        } else {
+            for (int i = 0; i < storeIndex; i++) {
+                if (getId == storeId[i]) {
                     itemId[itemIndex] = getId;
                     itemFalse = false;
                     break;
-                }
-                else
-                {
+                } else {
                     itemFalse = true;
                 }
             }
-            if (itemFalse == true)
-            {
+            if (itemFalse == true) {
                 cout << "Enter a valid number." << endl;
                 itemIndex--;
                 itemFalse = false;
@@ -640,34 +420,25 @@ void MusicRepository::CreateOrder()
     }
 
     cout << "You choose this song id's: ";
-    for (int i = 0; i < itemIndex; i++)
-    {
+    for (int i = 0; i < itemIndex; i++) {
         cout << itemId[i] << " ";
     }
 
-    CHOOSEEDITORBUY:
+CHOOSEEDITORBUY:
     cout << endl << "Do you want to edit items(e) or buy this items(b): ";
     cin >> chooseEditOrBuy;
 
-    if (chooseEditOrBuy == 'e')
-    {
-        for (int i = 0;;i++)
-        {
+    if (chooseEditOrBuy == 'e') {
+        for (int i = 0;; i++) {
             cout << "Remove item id's (q to exit): ";
             cin >> getId;
-            if (getId == "q")
-            {
+            if (getId == "q") {
                 break;
-            }
-            else
-            {
-                for (int j = 0;j < itemIndex;j++)
-                {
-                    if (itemId[j] == getId)
-                    {
-                        for (int k = j; k < itemIndex; k++)
-                        {
-                            itemId[k] = itemId[k+1];
+            } else {
+                for (int j = 0; j < itemIndex; j++) {
+                    if (itemId[j] == getId) {
+                        for (int k = j; k < itemIndex; k++) {
+                            itemId[k] = itemId[k + 1];
                         }
                         itemId[itemIndex--] = "\0";
                     }
@@ -676,37 +447,26 @@ void MusicRepository::CreateOrder()
         }
 
         cout << "You choose this song id's: ";
-        for (int i = 0; i < itemIndex; i++)
-        {
+        for (int i = 0; i < itemIndex; i++) {
             cout << itemId[i] << " ";
         }
 
         goto CHOOSEEDITORBUY;
-    }
-    else if (chooseEditOrBuy == 'b')
-    {
-        for (int i = 0; i < itemIndex; i++)
-        {
-            for (int j = 0; j < storeIndex; j++)
-            {
-                if (itemId[i] == storeId[j])
-                {
+    } else if (chooseEditOrBuy == 'b') {
+        for (int i = 0; i < itemIndex; i++) {
+            for (int j = 0; j < storeIndex; j++) {
+                if (itemId[i] == storeId[j]) {
                     qstate = mysql_query(conn, "select m_quantity from musicinfo_tb");
-                    if (!qstate)
-                    {
+                    if (!qstate) {
                         res = mysql_store_result(conn);
-                        while ((row = mysql_fetch_row(res)))
-                        {
-                            if (atoi(row[0]) > 0)
-                            {
+                        while ((row = mysql_fetch_row(res))) {
+                            if (atoi(row[0]) > 0) {
                                 storeQuantity[storeIndexN] = row[0];
                                 storeIndexN++;
                             }
                         }
                         storeIndexN = 0;
-                    }
-                    else
-                    {
+                    } else {
                         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
                     }
 
@@ -726,42 +486,41 @@ void MusicRepository::CreateOrder()
                     strquan1 << quan1;
                     strquan1 >> getQuan1;
 
-                    string insert_query = "insert into solditem_tb (m_category, m_type, m_name, m_artist, m_price, m_quantity) values ('"+storeCategory[j]+"','"+storeType[j]+"','"+storeName[j]+"','"+storeArtist[j]+"','"+storePrice[j]+"','"+getResult+"')";
+                    string insert_query =
+                            "insert into solditem_tb (m_category, m_type, m_name, m_artist, m_price, m_quantity) values ('"
+                            + storeCategory[j] + "','" + storeType[j] + "','" + storeName[j] + "','" + storeArtist[j] +
+                            "','" + storePrice[j] + "','" + getResult + "')";
                     purchase = true;
 
                     //cout << insert_query << endl;
 
 
-                    const char* q = insert_query.c_str(); // c_str converts string to constant char and this is required
+                    const char *q = insert_query.c_str(); // c_str converts string to constant char and this is required
 
                     qstate = mysql_query(conn, q);
 
-                    if (!qstate)
-                    {
+                    if (!qstate) {
                         purchase = true;
-                    }
-                    else
-                    {
+                    } else {
                         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
                     }
 
 
-                    string update_query = "update musicinfo_tb set m_quantity = '"+getQuan1+"' where m_id = '"+storeId[j]+"'";
-                    const char* qu = update_query.c_str();
+                    string update_query = "update musicinfo_tb set m_quantity = '" + getQuan1 + "' where m_id = '" +
+                                          storeId[j] + "'";
+                    const char *qu = update_query.c_str();
                     //cout << update_query << endl;
 
                     qstate = mysql_query(conn, qu);
 
-                    if (qstate)
-                    {
+                    if (qstate) {
                         cout << "Failed To Update!" << mysql_errno(conn) << endl;
                     }
                 }
             }
         }
 
-        if(purchase == true)
-        {
+        if (purchase == true) {
             cout << endl << "Purchase Successfully Done." << endl;
             cout << endl << "Total Price: " << totalPrice << endl;
         }
@@ -770,19 +529,14 @@ void MusicRepository::CreateOrder()
     // Exit Code
     cout << endl << "Press 'm' to Menu and any other key to Exit: ";
     cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
+    if (choose == 'm' || choose == 'M') {
         reset = true;
-    }
-    else
-    {
+    } else {
         exit(0);
     }
 }
-void MusicRepository::SoldItems()
-{
 
-
+void MusicRepository::SoldItems() {
     // Variables
     char choose;
     // Variables End
@@ -790,66 +544,53 @@ void MusicRepository::SoldItems()
     cout << "Welcome To Music Store" << endl << endl;
     cout << "Sold Items Menu" << endl << endl;
 
-    qstate = mysql_query(conn, "select m_name, m_artist, m_category, m_type, m_price, sum(m_quantity) from solditem_tb group by m_name");
-    if (!qstate)
-    {
+    qstate = mysql_query(
+        conn, "select m_name, m_artist, m_category, m_type, m_price, sum(m_quantity) from solditem_tb group by m_name");
+    if (!qstate) {
         res = mysql_store_result(conn);
-        while ((row = mysql_fetch_row(res)))
-        {
-            cout << "Name: " << row[0] << "\nArtist: " << row[1] << "\nCategory: " << row[2] << "\nType: " << row[3] << "\nPrice: " << row[4] << "\nQuantity: " << row[5] << endl << endl;
+        while ((row = mysql_fetch_row(res))) {
+            cout << "Name: " << row[0] << "\nArtist: " << row[1] << "\nCategory: " << row[2] << "\nType: " << row[3] <<
+                    "\nPrice: " << row[4] << "\nQuantity: " << row[5] << endl << endl;
         }
-    }
-    else
-    {
+    } else {
         cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
     }
 
     // Exit Code
     cout << "Press 'm' to Menu and any other key to Exit: ";
     cin >> choose;
-    if (choose == 'm' || choose == 'M')
-    {
+    if (choose == 'm' || choose == 'M') {
         reset = true;
-    }
-    else
-    {
+    } else {
         exit(0);
     }
-
 }
 
-bool MusicRepository::isReset() const
-{
+bool MusicRepository::isReset() const {
     return reset;
 }
 
-void MusicRepository::resetToDefault()
-{
+void MusicRepository::resetToDefault() {
     reset = false;
     cout << "Welcome To Music Store" << endl << endl;
     cout << "Press any key to continue..." << endl;
 }
 
 bool MusicRepository::connectToDatabase(const char *host, const char *user, const char *passwd, const char *db,
-    unsigned int port) {
+                                        unsigned int port) {
     reset = false;
     conn = mysql_init(0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected" << endl;
         cout << "Press any key to continue..." << endl;
-    }
-    else
+    } else
         cout << "Failed To Connect!" << mysql_errno(conn) << endl;
     conn = mysql_real_connect(conn, host, user, passwd, db, port, NULL, 0);
-    if (conn)
-    {
+    if (conn) {
         cout << "Database Connected To MySql" << conn << endl;
         cout << "Press any key to continue..." << endl;
         return true;
     }
-    else {
-        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
-        return false;
-    }
+    cout << "Failed To Connect!" << mysql_errno(conn) << endl;
+    return false;
 }

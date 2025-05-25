@@ -18,7 +18,7 @@ void AddItemScreen::render() {
 
     // Center the window
     ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
-                           ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
+                            ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(450, 400), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Add New Music Item", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -60,35 +60,31 @@ void AddItemScreen::render() {
                     price = price_val;
                     quantity = quantity_val;
 
-                    // TODO: Add database insertion code using MusicRepository
-                    // if (music_repository) {
-                    //     bool result = music_repository->addNewItem(category, type, name, artist, price, quantity);
-                    //     if (result) {
-                    //         success = true;
-                    //         error_occurred = false;
-                    //         // Reset input fields
-                    //         category_buf[0] = '\0';
-                    //         type_buf[0] = '\0';
-                    //         name_buf[0] = '\0';
-                    //         artist_buf[0] = '\0';
-                    //         strcpy(price_buf, "0.0");
-                    //         strcpy(quantity_buf, "0");
-                    //     } else {
-                    //         error_occurred = true;
-                    //         error_message = "Failed to add item to database";
-                    //         success = false;
-                    //     }
-                    // }
-
-                    // For now, simulate success
-                    success = true;
-                    error_occurred = false;
+                    if (music_repository) {
+                        const bool result = music_repository->AddNewItemInDatabase(
+                            category, type, name, artist, price, quantity);
+                        if (result) {
+                            success = true;
+                            error_occurred = false;
+                            // Reset input fields
+                            category_buf[0] = '\0';
+                            type_buf[0] = '\0';
+                            name_buf[0] = '\0';
+                            artist_buf[0] = '\0';
+                            strcpy(price_buf, "0.0");
+                            strcpy(quantity_buf, "0");
+                        } else {
+                            error_occurred = true;
+                            error_message = "Failed to add item to database";
+                            success = false;
+                        }
+                    }
                 } else {
                     error_occurred = true;
                     error_message = "Price and quantity cannot be negative";
                     success = false;
                 }
-            } catch (const std::exception& e) {
+            } catch ([[maybe_unused]] const std::exception &e) {
                 error_occurred = true;
                 error_message = "Invalid numeric input";
                 success = false;
