@@ -4,13 +4,13 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 
-#include "music_store/music_repository.h"
-#include "ui/connect_db/connect_db_screen.h"
-#include "ui/core/screen.h"
+// #include "music_store/music_repository.h"
+// #include "ui/connect_db/connect_db_screen.h"
+// #include "ui/core/screen.h"
 
-Screen *current_screen = nullptr;
-ConnectDbScreen *connect_db_screen;
-MusicRepository *music_repository = nullptr;
+// Screen *current_screen = nullptr;
+// ConnectDbScreen *connect_db_screen;
+// MusicRepository *music_repository = nullptr;
 
 static void glfw_error_callback(const int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -93,15 +93,15 @@ int main(int, char **) {
 
 
 void showMyApplicationWindow() {
-    if (current_screen) current_screen->render();
+    // if (current_screen) current_screen->render();
 }
 
 void initGraph() {
-    current_screen = connect_db_screen;
+    // current_screen = connect_db_screen;
 }
 
 void clear() {
-    delete current_screen;
-    delete connect_db_screen;
-    delete music_repository;
+    // delete current_screen;
+    // delete connect_db_screen;
+    // delete music_repository;
 }
