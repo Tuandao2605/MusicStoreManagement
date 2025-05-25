@@ -42,4 +42,4 @@ target_include_directories(imgui PUBLIC
 
 target_include_directories(video-app PRIVATE ${MYSQL_INCLUDE_DIR})
 target_link_directories(video-app PRIVATE ${MYSQL_LIB_DIR})
-target_link_libraries(video-app PRIVATE imgui glfw OpenGL::GL mysqlclient)
+target_link_libraries(video-app PRIVATE imgui glfw OpenGL::GL mysql)

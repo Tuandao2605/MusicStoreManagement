@@ -4,7 +4,9 @@
 #include<sstream>
 #include<string>
 #include<cstdlib>
+extern "C" {
 #include "mysql.h"
+}
 using namespace std;
 
 
