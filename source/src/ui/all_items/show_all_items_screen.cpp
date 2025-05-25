@@ -2,6 +2,7 @@
 
 #include <map>
 #include <ranges>
+#include <set>
 
 #include "imgui.h"
 
@@ -13,9 +14,12 @@ void ShowAllItemsScreen::render() {
     static bool mysql_available = true;
     static std::string editing_id;
     static std::map<std::string, MusicItem> modified_items;
+    static std::set<std::string> items_to_delete;
     static bool save_success = false;
     static float message_timer = 0.0f;
     static bool adding_new_item = false;
+    static std::string item_to_confirm_delete;
+    static bool show_delete_confirmation = false;
 
     // For editing and adding new items
     static char category_buf[128] = "";
@@ -61,6 +65,30 @@ void ShowAllItemsScreen::render() {
         loading = false;
     }
 
+    // Delete confirmation popup
+    if (show_delete_confirmation) {
+        ImGui::OpenPopup("Delete Item");
+    }
+
+    // Centered modal popup for delete confirmation
+    if (ImGui::BeginPopupModal("Delete Item", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Are you sure you want to delete this item?");
+        ImGui::Text("This action cannot be undone.");
+        ImGui::Separator();
+
+        if (ImGui::Button("Yes, Delete", ImVec2(120, 0))) {
+            items_to_delete.insert(item_to_confirm_delete);
+            show_delete_confirmation = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+            show_delete_confirmation = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
     if (error) {
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", error_message.c_str());
 
@@ -79,9 +107,10 @@ void ShowAllItemsScreen::render() {
         }
 
         // Display modified items count
-        if (!modified_items.empty()) {
+        if (!modified_items.empty() || !items_to_delete.empty()) {
             ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f),
-                               "%zu item(s) modified and not yet saved", modified_items.size());
+                               "%zu item(s) modified and %zu item(s) marked for deletion",
+                               modified_items.size(), items_to_delete.size());
         }
 
         // Add new item form
@@ -219,6 +248,11 @@ void ShowAllItemsScreen::render() {
 
             // Display rows
             for (const auto &item: items) {
+                // Skip items marked for deletion in the display
+                if (items_to_delete.contains(item.id)) {
+                    continue;
+                }
+
                 ImGui::TableNextRow();
                 ImGui::PushID(item.id.c_str());
 
@@ -318,6 +352,18 @@ void ShowAllItemsScreen::render() {
                         snprintf(price_buf, sizeof(price_buf), "%.2f", display_item.price);
                         snprintf(quantity_buf, sizeof(quantity_buf), "%d", display_item.quantity);
                     }
+
+                    ImGui::SameLine();
+
+                    // Add Remove button with red color
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
+                    if (ImGui::Button("Remove")) {
+                        item_to_confirm_delete = item.id;
+                        show_delete_confirmation = true;
+                    }
+                    ImGui::PopStyleColor(3);
                 }
                 ImGui::PopID();
             }
@@ -349,7 +395,7 @@ void ShowAllItemsScreen::render() {
             }
         }
 
-        if (!modified_items.empty()) {
+        if (!modified_items.empty() || !items_to_delete.empty()) {
             ImGui::SameLine();
             if (ImGui::Button("Save All Changes", ImVec2(180, 30))) {
                 error = false;
@@ -359,8 +405,14 @@ void ShowAllItemsScreen::render() {
                         music_repository->UpdateItem(updated_item);
                     }
 
-                    // Clear modified items
+                    // Delete each marked item
+                    for (const auto &id: items_to_delete) {
+                        music_repository->RemoveItem(id);
+                    }
+
+                    // Clear modified and deleted items
                     modified_items.clear();
+                    items_to_delete.clear();
                     save_success = true;
                     message_timer = 0.0f;
 
@@ -376,6 +428,7 @@ void ShowAllItemsScreen::render() {
             ImGui::SameLine();
             if (ImGui::Button("Discard Changes", ImVec2(180, 30))) {
                 modified_items.clear();
+                items_to_delete.clear();
                 editing_id = "";
                 loading = true;
             }

@@ -2,38 +2,7 @@
 
 #include "helper.h"
 
-MusicRepository::MusicRepository(): res(nullptr), row(nullptr), qstate(0) {
-    // create connection
-    reset = false;
-    conn = mysql_init(0);
-    if (conn) {
-        cout << "Database Connected" << endl;
-        cout << "Press any key to continue..." << endl;
-    } else
-        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
-    conn = mysql_real_connect(conn, "127.0.0.1", "root", "root", "test", 3306, nullptr, 0);
-    if (conn) {
-        cout << "Database Connected To MySql" << conn << endl;
-        cout << "Press any key to continue..." << endl;
-    } else
-        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
-}
-
-MusicRepository::MusicRepository(const char *host, const char *user, const char *passwd, const char *db,
-                                 const unsigned int port): res(nullptr), row(nullptr), qstate(0) {
-    reset = false;
-    conn = mysql_init(0);
-    if (conn) {
-        cout << "Database Connected" << endl;
-        cout << "Press any key to continue..." << endl;
-    } else
-        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
-    conn = mysql_real_connect(conn, host, user, passwd, db, port, nullptr, 0);
-    if (conn) {
-        cout << "Database Connected To MySql" << conn << endl;
-        cout << "Press any key to continue..." << endl;
-    } else
-        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
+MusicRepository::MusicRepository(): reset(false), conn(nullptr), res(nullptr), row(nullptr), qstate(0) {
 }
 
 MusicRepository::~MusicRepository() {
@@ -104,6 +73,27 @@ std::vector<MusicItem> MusicRepository::FindMusic(const string &name, const stri
         }
     }
     return foundItems;
+}
+
+void MusicRepository::EditItem(const MusicItem &music_item) {
+    const string query = "update musicinfo_tb set "
+                         "m_category = '" + music_item.category + "', "
+                         "m_type = '" + music_item.type + "', "
+                         "m_name = '" + music_item.name + "', "
+                         "m_artist = '" + music_item.artist + "', "
+                         "m_price = '" + to_string(music_item.price) + "', "
+                         "m_quantity = '" + to_string(music_item.quantity) + "' "
+                         "where m_id = '" + music_item.id + "'";
+    qstate = mysql_query(conn, query.c_str());
+    if (qstate) {
+        cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
+    } else {
+        cout << "Item updated successfully." << endl;
+    }
+}
+
+void MusicRepository::RemoveItem(const MusicItem &music_item) {
+    RemoveItem(music_item.id);
 }
 
 
@@ -349,4 +339,14 @@ bool MusicRepository::connectToDatabase(const char *host, const char *user, cons
     }
     cout << "Failed To Connect!" << mysql_errno(conn) << endl;
     return false;
+}
+
+void MusicRepository::RemoveItem(const string &id) {
+    const string query = "delete from musicinfo_tb where m_id = '" + id + "'";
+    qstate = mysql_query(conn, query.c_str());
+    if (qstate) {
+        cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
+    } else {
+        cout << "Item removed successfully." << endl;
+    }
 }

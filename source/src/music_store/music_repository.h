@@ -5,6 +5,7 @@
 #include<sstream>
 #include<string>
 #include<cstdlib>
+#include <__tree>
 
 #include "music_item.h"
 
@@ -20,15 +21,6 @@ public:
     // Constructor
     MusicRepository();
 
-    MusicRepository(
-        const char *host,
-        const char *user,
-        const char *passwd,
-        const char *db,
-        unsigned int port
-    );
-
-    // Destructor
     ~MusicRepository();
 
 
@@ -42,11 +34,10 @@ public:
     std::vector<MusicItem> FindMusic(const string &name, const string &category, const string &type,
                                      const string &artist);
 
-    void EditItem();
+    void EditItem(const MusicItem &music_item);
 
-    void RemoveItem();
+    void RemoveItem(const MusicItem &music_item);
 
-    void CreateOrder();
 
     void SoldItems();
 
@@ -74,8 +65,10 @@ public:
     }
 
     void UpdateItem(const MusicItem &music_item) {
-        // TODO: Implement the update logic
+        EditItem(music_item);
     }
+
+    void RemoveItem(const string & id);
 
 private:
     bool reset;
