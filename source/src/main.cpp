@@ -4,13 +4,21 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 
+#include "add_new_item/add_item_screen.h"
+#include "all_items/show_all_items_screen.h"
 #include "music_store/music_repository.h"
+#include "ui/connect_db/connect_db_screen.h"
+#include "ui/core/screen.h"
+#include "ui/home/home_screen.h"
 
 // #include "music_store/music_repository.h"
 // #include "ui/connect_db/connect_db_screen.h"
 // #include "ui/core/screen.h"
 
-// Screen *current_screen = nullptr;
+Screen *current_screen = nullptr;
+ConnectDbScreen *connect_db_screen = nullptr;
+MusicRepository *music_repository = nullptr;
+HomeScreen *home_screen = nullptr;
 // ConnectDbScreen *connect_db_screen;
 // MusicRepository *music_repository = nullptr;
 
@@ -60,7 +68,12 @@ int main(int, char **) {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     initGraph();
-
+    music_repository = new MusicRepository();
+    connect_db_screen = new ConnectDbScreen(music_repository, [] {
+        current_screen = new ShowAllItemsScreen(music_repository);
+    });
+    // current_screen = new ShowAllItemsScreen(music_repository);
+    current_screen = connect_db_screen;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -95,12 +108,13 @@ int main(int, char **) {
 
 
 void showMyApplicationWindow() {
+    current_screen->render();
     // if (current_screen) current_screen->render();
 }
 
 void initGraph() {
-    auto* music = new MusicRepository();
-    music->CreateOrder();
+    // auto* music = new MusicRepository();
+    // music->CreateOrder();
     // current_screen = connect_db_screen;
 }
 

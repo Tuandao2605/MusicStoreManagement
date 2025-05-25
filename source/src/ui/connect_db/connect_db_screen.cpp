@@ -7,6 +7,7 @@ void ConnectDbScreen::render() {
     static char userBuffer[128] = "root";
     static char passwdBuffer[128] = "root";
     static char dbBuffer[128] = "test_db";
+    static char portBuffer[10] = "3306";
 
     ImGui::Begin("Connect to Database");
 
@@ -17,11 +18,18 @@ void ConnectDbScreen::render() {
 
     if (ImGui::Button("Connect")) {
         // Attempt to connect to the database
-        std::cout << "Connecting to DB with the following details:" << std::endl;
-        std::cout << "Host: " << hostBuffer << std::endl;
-        std::cout << "User: " << userBuffer << std::endl;
-        std::cout << "Password: " << passwdBuffer << std::endl;
-        std::cout << "Database: " << dbBuffer << std::endl;
+        const int port = std::atoi(portBuffer);
+        bool isConnectSuccessful = music_repository->connectToDatabase(
+            hostBuffer,
+            userBuffer,
+            passwdBuffer,
+            dbBuffer,
+            port
+        );
+
+        if (isConnectSuccessful) {
+            onConnectDbSuccess();
+        }
 
         // Here you can add logic to initialize the database connection
         // using the provided details.

@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<cstdio>
 #include<fstream>
@@ -37,6 +38,13 @@ public:
     void SoldItems();
     bool isReset() const;
     void resetToDefault();
+    bool connectToDatabase(
+        const char *host,
+        const char *user,
+        const char *passwd,
+        const char *db,
+        unsigned int port
+    );
 private:
 
     bool reset;

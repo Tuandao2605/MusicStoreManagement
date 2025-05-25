@@ -829,3 +829,27 @@ void MusicRepository::resetToDefault()
     cout << "Welcome To Music Store" << endl << endl;
     cout << "Press any key to continue..." << endl;
 }
+
+bool MusicRepository::connectToDatabase(const char *host, const char *user, const char *passwd, const char *db,
+    unsigned int port) {
+    reset = false;
+    conn = mysql_init(0);
+    if (conn)
+    {
+        cout << "Database Connected" << endl;
+        cout << "Press any key to continue..." << endl;
+    }
+    else
+        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
+    conn = mysql_real_connect(conn, host, user, passwd, db, port, NULL, 0);
+    if (conn)
+    {
+        cout << "Database Connected To MySql" << conn << endl;
+        cout << "Press any key to continue..." << endl;
+        return true;
+    }
+    else {
+        cout << "Failed To Connect!" << mysql_errno(conn) << endl;
+        return false;
+    }
+}
