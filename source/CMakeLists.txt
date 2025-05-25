@@ -23,15 +23,23 @@ add_subdirectory(lib/glfw)
 # OpenGL
 find_package(OpenGL REQUIRED)
 
+# MySQL
+set(MYSQL_INCLUDE_DIR "C:\\Program Files\\MySQL\\MySQL Server 9.3\\include")
+set(MYSQL_LIB_DIR "C:\\Program Files\\MySQL\\MySQL Server 9.3\\lib")
+
 # Executable
 add_executable(video-app
         src/main.cpp
+        src/music_store/music_repository.h
+        src/music_store/music_repository.cpp
 )
+
 target_include_directories(imgui PUBLIC
         ${IMGUI_DIR}
         ${IMGUI_BACKENDS}
         ${CMAKE_SOURCE_DIR}/lib/glfw/include
 )
 
-target_link_libraries(video-app PRIVATE imgui glfw OpenGL::GL)
-
+target_include_directories(video-app PRIVATE ${MYSQL_INCLUDE_DIR})
+target_link_directories(video-app PRIVATE ${MYSQL_LIB_DIR})
+target_link_libraries(video-app PRIVATE imgui glfw OpenGL::GL mysqlclient)

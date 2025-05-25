@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 
+#include "music_store/music_repository.h"
+
 // #include "music_store/music_repository.h"
 // #include "ui/connect_db/connect_db_screen.h"
 // #include "ui/core/screen.h"
@@ -97,6 +99,8 @@ void showMyApplicationWindow() {
 }
 
 void initGraph() {
+    auto* music = new MusicRepository();
+    music->CreateOrder();
     // current_screen = connect_db_screen;
 }
 
