@@ -1,0 +1,6 @@
+[submodule "lib/imgui"]
+	path = source/lib/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "lib/glfw"]
+	path = source/lib/glfw
+	url = https://github.com/glfw/glfw.git
