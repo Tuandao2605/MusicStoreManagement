@@ -37,7 +37,7 @@ public:
 
     std::vector<MusicItem> GetAllItems();
 
-    void ItemInStock();
+    std::vector<MusicItem> GetAllItemsInStock();
 
     std::vector<MusicItem> FindMusic(const string &name, const string &category, const string &type,
                                      const string &artist);
