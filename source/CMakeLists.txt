@@ -45,7 +45,6 @@ add_executable(video-app
         src/ui/find/find_music_screen.cpp
         src/ui/find/find_music_screen.h
         src/music_store/music_item.h
-        src/music_store/helper.h
 )
 
 target_include_directories(imgui PUBLIC

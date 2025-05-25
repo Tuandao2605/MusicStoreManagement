@@ -1,7 +1,5 @@
 #include "music_repository.h"
 
-#include "helper.h"
-
 MusicRepository::MusicRepository(): reset(false), conn(nullptr), res(nullptr), row(nullptr), qstate(0) {
 }
 
@@ -36,7 +34,7 @@ std::vector<MusicItem> MusicRepository::GetAllItems() {
         res = mysql_store_result(conn);
         while ((row = mysql_fetch_row(res))) {
             MusicItem item;
-            item.id = toInt(to_string(*row[0]));
+            item.id = row[0];
             item.category = row[1];
             item.type = row[2];
             item.name = row[3];
