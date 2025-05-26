@@ -101,12 +101,8 @@ void showMyApplicationWindow() {
 
 void initGraph() {
     music_repository = new MusicRepository();
-    connect_db_screen = new ConnectDbScreen(music_repository, [] {
-        show_all_items_screen = new ShowAllItemsScreen(music_repository);
-        current_screen = show_all_items_screen;
-        connect_db_screen = nullptr;
-        delete connect_db_screen;
-    });
+    connect_db_screen = new ConnectDbScreen(music_repository, [] { current_screen = show_all_items_screen; });
+    show_all_items_screen = new ShowAllItemsScreen(music_repository, [] { current_screen = connect_db_screen; });
     current_screen = connect_db_screen;
 }
 
