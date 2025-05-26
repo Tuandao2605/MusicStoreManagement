@@ -1,6 +1,7 @@
 #pragma once
 #include "../../music_store/music_repository.h"
 #include "../core/screen.h"
+#include <algorithm>
 
 struct FilterState {
     std::string *category = nullptr;
@@ -67,19 +68,60 @@ class ShowAllItemsScreen final : public Screen {
         filter_item();
     }
 
+    static bool char_equals_ignore_case(const char a, const char b) {
+        return std::tolower(static_cast<unsigned char>(a)) ==
+               std::tolower(static_cast<unsigned char>(b));
+    }
+
+    static bool contains_case_insensitive(const std::string &str, const std::string &substr) {
+        if (substr.empty()) return true;
+        if (str.empty()) return false;
+
+        const auto it = ranges::search(str, substr, char_equals_ignore_case).begin();
+
+        return it != str.end();
+    }
+
     void filter_item() {
         state.filtered_items.clear();
+        state.filtered_items.reserve(state.items.size()); // Pre-allocate for performance
+
         for (const auto &item: state.items) {
-            if ((state.filter_state.category == nullptr || item.category == *state.filter_state.category) &&
-                (state.filter_state.type == nullptr || item.type == *state.filter_state.type) &&
-                (state.filter_state.name == nullptr || item.name == *state.filter_state.name) &&
-                (state.filter_state.artist == nullptr || item.artist == *state.filter_state.artist) &&
-                (state.filter_state.min_price == nullptr || item.price >= *state.filter_state.min_price) &&
-                (state.filter_state.max_price == nullptr || item.price <= *state.filter_state.max_price) &&
-                (state.filter_state.min_quantity == nullptr || item.quantity >= *state.filter_state.min_quantity) &&
-                (state.filter_state.max_quantity == nullptr || item.quantity <= *state.filter_state.max_quantity)) {
-                state.filtered_items.push_back(item);
-            }
+            // Use short-circuit evaluation for better performance
+            // Check most common filters first for better performance
+
+            // Text filters
+            if (state.filter_state.category &&
+                !contains_case_insensitive(item.category, *state.filter_state.category))
+                continue;
+
+            if (state.filter_state.name &&
+                !contains_case_insensitive(item.name, *state.filter_state.name))
+                continue;
+
+            if (state.filter_state.type &&
+                !contains_case_insensitive(item.type, *state.filter_state.type))
+                continue;
+
+            if (state.filter_state.artist &&
+                !contains_case_insensitive(item.artist, *state.filter_state.artist))
+                continue;
+
+            // Numeric filters
+            if (state.filter_state.min_price && item.price < *state.filter_state.min_price)
+                continue;
+
+            if (state.filter_state.max_price && item.price > *state.filter_state.max_price)
+                continue;
+
+            if (state.filter_state.min_quantity && item.quantity < *state.filter_state.min_quantity)
+                continue;
+
+            if (state.filter_state.max_quantity && item.quantity > *state.filter_state.max_quantity)
+                continue;
+
+            // All filters passed, include the item
+            state.filtered_items.push_back(item);
         }
     }
 
