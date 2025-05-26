@@ -12,10 +12,11 @@ class AddItemScreen final : public Screen {
     float price = 0.0;
     int quantity = 0;
     MusicRepository *music_repository;
+    VoidCallback back_callback;
 
 public:
-    explicit AddItemScreen(MusicRepository *music_repository)
-        : music_repository(music_repository) {
+    explicit AddItemScreen(MusicRepository *music_repository, const VoidCallback &back_callback)
+        : music_repository(music_repository), back_callback(back_callback) {
     }
 
     void drawMainWindows() override;

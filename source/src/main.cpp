@@ -11,6 +11,7 @@
 #include "ui/core/screen.h"
 #include "ui/find/find_music_screen.h"
 #include "ui/home/home_screen.h"
+#include "ui/item_in_stock/item_in_stock_screen.h"
 
 // #include "music_store/music_repository.h"
 // #include "ui/connect_db/connect_db_screen.h"
@@ -71,15 +72,22 @@ int main(int, char **) {
     initGraph();
     music_repository = new MusicRepository();
     home_screen = new HomeScreen(
-        [] { current_screen = new AddItemScreen(music_repository); },
-        [] { current_screen = new ShowAllItemsScreen(music_repository); },
-        [] {
-        },
-        [] {
-            current_screen = new FindMusicScreen(music_repository, [] {
-                current_screen = home_screen;
-            });
-        },
+        [] { current_screen = new AddItemScreen(music_repository, [] {
+            current_screen = home_screen;
+        });
+    },
+        [] { current_screen = new ShowAllItemsScreen(music_repository,[] {
+            current_screen = home_screen;
+        });
+    },
+        [] { current_screen = new item_in_stock_screen(music_repository, [] {
+            current_screen = home_screen;
+        });
+    },
+        [] { current_screen = new FindMusicScreen(music_repository, [] {
+            current_screen = home_screen;
+        });
+    },
         [] {
         },
         [] {

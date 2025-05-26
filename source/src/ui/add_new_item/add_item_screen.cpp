@@ -17,6 +17,11 @@ void AddItemScreen::drawMainWindows() {
 
     ImGui::Begin("Add New Music Item", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
+    // Add Back button at the top
+    if (ImGui::Button("Back", ImVec2(60, 25))) {
+        if (back_callback) back_callback();
+    }
+
     ImGui::Text("Enter Music Item Details");
     ImGui::Separator();
 

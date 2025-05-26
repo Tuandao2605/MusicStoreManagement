@@ -8,6 +8,11 @@
 void ShowAllItemsScreen::drawMainWindows() {
     ImGui::Begin("Show All Music Items");
 
+    // Add Back button at the top
+    if (ImGui::Button("Back", ImVec2(60, 25))) {
+        if (back_callback) back_callback();
+    }
+
     if (state.loading) {
         reload();
         state.loading = false;

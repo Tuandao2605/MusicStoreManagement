@@ -42,6 +42,7 @@ struct ShowAllItemsState {
 
 class ShowAllItemsScreen final : public Screen {
     MusicRepository *music_repository;
+    VoidCallback back_callback;
     ShowAllItemsState state;
 
     static bool IsValidFloat(const std::string &s, float &out) {
@@ -126,8 +127,8 @@ class ShowAllItemsScreen final : public Screen {
     }
 
 public:
-    explicit ShowAllItemsScreen(MusicRepository *repository = nullptr)
-        : music_repository(repository) {
+    explicit ShowAllItemsScreen(MusicRepository *repository,const VoidCallback &back_callback)
+        : music_repository(repository), back_callback(back_callback) {
         state = ShowAllItemsState();
     }
 
