@@ -47,6 +47,35 @@ std::vector<MusicItem> MusicRepository::GetAllItems() {
     return items;
 }
 
+std::vector<MusicItem> MusicRepository::getItemsInStock(int min_quantity) {
+    std::vector<MusicItem> result;
+
+    // Build the SQL query to filter items with quantity >= min_quantity
+    std::string query = "SELECT * FROM musicinfo_tb WHERE m_quantity >= " + std::to_string(min_quantity);
+    qstate = mysql_query(conn, query.c_str());
+
+    if (!qstate) {
+        // Store the result set returned by the query
+        res = mysql_store_result(conn);
+        // Loop through each row in the result
+        while ((row = mysql_fetch_row(res))) {
+            MusicItem item;
+            item.id = row[0];
+            item.category = row[1];
+            item.type = row[2];
+            item.name = row[3];
+            item.artist = row[4];
+            item.price = atof(row[5]);     // Convert string to float
+            item.quantity = atoi(row[6]);  // Convert string to int
+            result.push_back(item);        // Add item to the result list
+        }
+    } else {
+        // Print an error message if the query fails
+        std::cerr << "Query Execution Problem! Error Code: " << mysql_errno(conn) << std::endl;
+    }
+
+    return result;
+}
 std::vector<MusicItem> MusicRepository::GetAllItemsInStock() {
     const std::vector<MusicItem> items = GetAllItems();
     std::vector<MusicItem> foundItems;

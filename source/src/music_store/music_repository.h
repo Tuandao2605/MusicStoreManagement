@@ -5,7 +5,8 @@
 #include<sstream>
 #include<string>
 #include<cstdlib>
-#include <__tree>
+#include <vector>
+// #include <tree>
 
 #include "music_item.h"
 
@@ -33,6 +34,8 @@ public:
 
     std::vector<MusicItem> FindMusic(const string &name, const string &category, const string &type,
                                      const string &artist);
+
+    std::vector<MusicItem> getItemsInStock(int min_quantity);
 
     void EditItem(const MusicItem &music_item);
 
