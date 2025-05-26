@@ -35,15 +35,8 @@ add_executable(video-app
         src/ui/connect_db/connect_db_screen.cpp
         src/music_store/music_repository.h
         src/music_store/music_repository.cpp
-        src/ui/home/home_screen.h
-        src/ui/add_new_item/add_item_screen.cpp
-        src/ui/add_new_item/add_item_screen.h
         src/ui/all_items/show_all_items_screen.cpp
         src/ui/all_items/show_all_items_screen.h
-        src/ui/item_in_stock/item_in_stock_screen.cpp
-        src/ui/item_in_stock/item_in_stock_screen.h
-        src/ui/find/find_music_screen.cpp
-        src/ui/find/find_music_screen.h
         src/music_store/music_item.h
 )
 
