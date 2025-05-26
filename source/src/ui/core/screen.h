@@ -16,7 +16,7 @@ public:
 
     void render() {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(1280, 720), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(1600, 900), ImGuiCond_Always);
         ImGui::Begin(title.c_str());
         drawMainWindows();
         ImGui::End();

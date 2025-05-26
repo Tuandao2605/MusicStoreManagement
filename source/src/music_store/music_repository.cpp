@@ -58,7 +58,7 @@ std::vector<MusicItem> MusicRepository::getItemsInStock(int min_quantity) {
         // Store the result set returned by the query
         res = mysql_store_result(conn);
         // Loop through each row in the result
-        while ((row = mysql_fetch_row(res))) {
+        while ((row == mysql_fetch_row(res))) {
             MusicItem item;
             item.id = row[0];
             item.category = row[1];
@@ -123,6 +123,32 @@ void MusicRepository::RemoveItem(const MusicItem &music_item) {
     RemoveItem(music_item.id);
 }
 
+std::optional<MusicItem> MusicRepository::getItemById(const std::string &id) {
+    std::optional<MusicItem> result;
+
+    std::string query = "SELECT * FROM musicinfo_tb WHERE id = " + id;
+    qstate = mysql_query(conn, query.c_str());
+
+    if (!qstate) {
+        res = mysql_store_result(conn);
+        if (res && (row == mysql_fetch_row(res))) {
+            MusicItem item;
+            item.id = row[0];
+            item.category = row[1];
+            item.type = row[2];
+            item.name = row[3];
+            item.artist = row[4];
+            item.price = std::stof(row[5]);
+            item.quantity = std::stoi(row[6]);
+            result = item;
+        }
+        mysql_free_result(res);
+    } else {
+        std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+    }
+
+    return result;
+}
 
 // void MusicRepository::CreateOrder() {
 //     // Variables

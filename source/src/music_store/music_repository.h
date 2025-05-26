@@ -6,6 +6,7 @@
 #include<string>
 #include<cstdlib>
 #include <vector>
+#include <optional>
 // #include <tree>
 
 #include "music_item.h"
@@ -36,6 +37,8 @@ public:
                                      const string &artist);
 
     std::vector<MusicItem> getItemsInStock(int min_quantity);
+
+    std::optional<MusicItem> getItemById(const std::string& id);
 
     void EditItem(const MusicItem &music_item);
 
