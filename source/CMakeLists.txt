@@ -37,6 +37,8 @@ add_executable(video-app
         src/music_store/music_repository.cpp
         src/ui/all_items/show_all_items_screen.cpp
         src/ui/all_items/show_all_items_screen.h
+        src/ui/order_item/order_item_screen.h
+        src/ui/order_item/order_item_screen.cpp
         src/music_store/music_item.h
 )
 

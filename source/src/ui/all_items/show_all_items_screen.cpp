@@ -6,8 +6,6 @@
 #include "imgui.h"
 
 void ShowAllItemsScreen::drawMainWindows() {
-    ImGui::Begin("Show All Music Items");
-
     // Add Back button at the top
     if (ImGui::Button("Back", ImVec2(60, 25))) {
         if (back_callback) back_callback();
@@ -226,6 +224,11 @@ void ShowAllItemsScreen::drawMainWindows() {
                 if (ImGui::Button(("Cancel##" + item.id).c_str())) {
                     state.editing_id = "";
                 }
+                ImGui::SameLine();
+
+                if (ImGui::Button(("Create Order##" + item.id).c_str())) {
+                    if (navigate_to_create_order_screen) navigate_to_create_order_screen(item.id);
+                }
             } else {
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%s", item.id.c_str());
@@ -258,6 +261,12 @@ void ShowAllItemsScreen::drawMainWindows() {
                     music_repository->RemoveItem(item.id);
                     reload();
                 }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(("Create Order##" + item.id).c_str())) {
+                    if (navigate_to_create_order_screen) navigate_to_create_order_screen(item.id);
+                }
             }
         }
 
@@ -265,6 +274,7 @@ void ShowAllItemsScreen::drawMainWindows() {
     }
     ImGui::EndChild();
 
+    // Add new item section
     if (!state.add_item_error_message.empty()) {
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error: %s", state.add_item_error_message.c_str());
     }

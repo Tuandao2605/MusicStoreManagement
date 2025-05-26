@@ -9,7 +9,7 @@ class ConnectDbScreen final : public Screen {
 
 public:
     explicit ConnectDbScreen(MusicRepository *music_repository, const VoidCallback &onConnectDbSuccess)
-        : music_repository(music_repository), onConnectDbSuccess(onConnectDbSuccess) {
+        : Screen("Connect to Database"), music_repository(music_repository), onConnectDbSuccess(onConnectDbSuccess) {
     }
 
     void drawMainWindows() override;

@@ -9,7 +9,6 @@ void ConnectDbScreen::drawMainWindows() {
     static char dbBuffer[128] = "test_db";
     static char portBuffer[10] = "3306";
 
-    ImGui::Begin("Connect to Database");
 
     ImGui::InputText("Host", hostBuffer, sizeof(hostBuffer));
     ImGui::InputText("User", userBuffer, sizeof(userBuffer));

@@ -44,6 +44,7 @@ class ShowAllItemsScreen final : public Screen {
     MusicRepository *music_repository;
     VoidCallback back_callback;
     ShowAllItemsState state;
+    std::function<void(std::string)> navigate_to_create_order_screen;
 
     static bool IsValidFloat(const std::string &s, float &out) {
         try {
@@ -127,8 +128,10 @@ class ShowAllItemsScreen final : public Screen {
     }
 
 public:
-    explicit ShowAllItemsScreen(MusicRepository *repository,const VoidCallback &back_callback)
-        : music_repository(repository), back_callback(back_callback) {
+    explicit ShowAllItemsScreen(MusicRepository *repository, const VoidCallback &back_callback,
+                                const std::function<void(std::string)> &navigate_to_create_order_screen)
+        : Screen("All Items"), music_repository(repository), back_callback(back_callback),
+          navigate_to_create_order_screen(navigate_to_create_order_screen) {
         state = ShowAllItemsState();
     }
 

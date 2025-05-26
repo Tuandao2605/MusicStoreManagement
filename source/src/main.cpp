@@ -8,11 +8,13 @@
 #include "ui/all_items/show_all_items_screen.h"
 #include "ui/connect_db/connect_db_screen.h"
 #include "ui/core/screen.h"
+#include "ui/order_item/order_item_screen.h"
 
 Screen *current_screen = nullptr;
 ConnectDbScreen *connect_db_screen = nullptr;
 MusicRepository *music_repository = nullptr;
 ShowAllItemsScreen *show_all_items_screen = nullptr;
+OrderItemScreen *order_item_screen = nullptr;
 
 static void glfw_error_callback(const int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -99,10 +101,28 @@ void showMyApplicationWindow() {
     // if (current_screen) current_screen->render();
 }
 
+
+void createOrderItemScreen(const std::string &item_id) {
+    if (order_item_screen) {
+        delete order_item_screen;
+    }
+    order_item_screen = new OrderItemScreen(item_id, music_repository, [] {
+        current_screen = show_all_items_screen;
+    });
+}
+
+
 void initGraph() {
     music_repository = new MusicRepository();
+
     connect_db_screen = new ConnectDbScreen(music_repository, [] { current_screen = show_all_items_screen; });
-    show_all_items_screen = new ShowAllItemsScreen(music_repository, [] { current_screen = connect_db_screen; });
+
+    show_all_items_screen = new ShowAllItemsScreen(music_repository,
+                                                   [] { current_screen = connect_db_screen; },
+                                                   [](const std::string &item_id) {
+                                                       createOrderItemScreen(item_id);
+                                                       current_screen = order_item_screen;
+                                                   });
     current_screen = connect_db_screen;
 }
 
@@ -110,4 +130,5 @@ void clear() {
     delete connect_db_screen;
     delete music_repository;
     delete show_all_items_screen;
+    delete order_item_screen;
 }
