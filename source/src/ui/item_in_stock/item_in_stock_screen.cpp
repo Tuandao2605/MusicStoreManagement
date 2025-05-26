@@ -2,7 +2,7 @@
 #include "item_in_stock_screen.h"
 #include "imgui.h"
 
-void item_in_stock_screen::render() {
+void item_in_stock_screen::drawMainWindows() {
     ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
                            ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(700, 500), ImGuiCond_FirstUseEver);
@@ -14,7 +14,6 @@ void item_in_stock_screen::render() {
 
     if (music_repository == nullptr) {
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Database not connected!");
-        ImGui::End();
         return;
     }
 
@@ -43,6 +42,4 @@ void item_in_stock_screen::render() {
 
         ImGui::EndTable();
     }
-
-    ImGui::End();
 }

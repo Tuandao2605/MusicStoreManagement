@@ -131,5 +131,5 @@ public:
         state = ShowAllItemsState();
     }
 
-    void render() override;
+    void drawMainWindows() override;
 };

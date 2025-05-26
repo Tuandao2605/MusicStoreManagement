@@ -12,5 +12,5 @@ public:
         : music_repository(music_repository), onConnectDbSuccess(onConnectDbSuccess) {
     }
 
-    void render() override;
+    void drawMainWindows() override;
 };

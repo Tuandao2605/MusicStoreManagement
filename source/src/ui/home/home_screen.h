@@ -33,12 +33,8 @@ public:
        SoldItems(SoldItems) {
     }
 
-    void render() override {
+    void drawMainWindows() override {
         // Center the window
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
-                               ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
-        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-
         ImGui::Begin("Music Store Management System", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
         ImGui::Text("Inventory Management");
@@ -85,7 +81,5 @@ public:
         if (ImGui::Button("Sold Items", ImVec2(buttonWidth, 0))) {
             if (SoldItems) SoldItems();
         }
-
-        ImGui::End();
     }
 };

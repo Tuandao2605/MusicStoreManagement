@@ -1,10 +1,9 @@
 #include "add_item_screen.h"
 #include "imgui.h"
-#include <vector>
 #include <string>
 
 
-void AddItemScreen::render() {
+void AddItemScreen::drawMainWindows() {
     // Character buffers for text input
     static char category_buf[128] = "";
     static char type_buf[128] = "";
@@ -15,11 +14,6 @@ void AddItemScreen::render() {
     static bool error_occurred = false;
     static std::string error_message = "";
     static bool success = false;
-
-    // Center the window
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
-                            ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize(ImVec2(450, 400), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Add New Music Item", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -107,6 +101,4 @@ void AddItemScreen::render() {
         error_occurred = false;
         success = false;
     }
-
-    ImGui::End();
 }

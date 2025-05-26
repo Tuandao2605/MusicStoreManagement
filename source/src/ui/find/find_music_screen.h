@@ -17,5 +17,5 @@ public:
         : music_repository(repository), back_callback(back_callback) {
     }
 
-    void render() override;
+    void drawMainWindows() override;
 };

@@ -18,5 +18,5 @@ public:
         : music_repository(music_repository) {
     }
 
-    void render() override;
+    void drawMainWindows() override;
 };

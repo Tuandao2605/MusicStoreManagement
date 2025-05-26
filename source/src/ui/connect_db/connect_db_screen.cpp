@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include <iostream>
 
-void ConnectDbScreen::render() {
+void ConnectDbScreen::drawMainWindows() {
     static char hostBuffer[128] = "127.0.0.1";
     static char userBuffer[128] = "root";
     static char passwdBuffer[128] = "root";
@@ -34,6 +34,4 @@ void ConnectDbScreen::render() {
         // Here you can add logic to initialize the database connection
         // using the provided details.
     }
-
-    ImGui::End();
 }

@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 
-void FindMusicScreen::render() {
+void FindMusicScreen::drawMainWindows() {
     // Character buffers for text input
     static char name_buf[128] = "";
     static char category_buf[128] = "";
@@ -12,11 +12,6 @@ void FindMusicScreen::render() {
     static std::string error_message = "";
     static bool search_performed = false;
     static std::vector<MusicItem> search_results;
-
-    // Center the window
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f),
-                           ImGuiCond_FirstUseEver, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize(ImVec2(700, 500), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Find Music", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -32,7 +27,6 @@ void FindMusicScreen::render() {
     // Rest of the render method remains the same
     if (music_repository == nullptr) {
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Database not connected!");
-        ImGui::End();
         return;
     }
 
@@ -57,10 +51,10 @@ void FindMusicScreen::render() {
         if (name_buf[0] || category_buf[0] || type_buf[0] || artist_buf[0]) {
             try {
                 // Get search parameters
-                std::string name = name_buf;
-                std::string category = category_buf;
-                std::string type = type_buf;
-                std::string artist = artist_buf;
+                const std::string name = name_buf;
+                const std::string category = category_buf;
+                const std::string type = type_buf;
+                const std::string artist = artist_buf;
 
                 // Call repository method
                 search_results = music_repository->FindMusic(name, category, type, artist);
@@ -110,35 +104,33 @@ void FindMusicScreen::render() {
                 ImGui::TableHeadersRow();
 
                 // Display rows
-                for (const auto& item : search_results) {
+                for (const auto&[id, category, type, name, artist, price, quantity] : search_results) {
                     ImGui::TableNextRow();
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", item.id.c_str());
+                    ImGui::Text("%s", id.c_str());
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", item.category.c_str());
+                    ImGui::Text("%s", category.c_str());
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", item.type.c_str());
+                    ImGui::Text("%s", type.c_str());
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", item.name.c_str());
+                    ImGui::Text("%s", name.c_str());
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", item.artist.c_str());
+                    ImGui::Text("%s", artist.c_str());
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%.2f", item.price);
+                    ImGui::Text("%.2f", price);
 
                     ImGui::TableNextColumn();
-                    ImGui::Text("%d", item.quantity);
+                    ImGui::Text("%d", quantity);
                 }
 
                 ImGui::EndTable();
             }
         }
     }
-
-    ImGui::End();
 }
