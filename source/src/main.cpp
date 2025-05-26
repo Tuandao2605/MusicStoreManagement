@@ -107,11 +107,7 @@ void initGraph() {
 }
 
 void clear() {
-    delete current_screen;
-    if (connect_db_screen) {
-        connect_db_screen = nullptr;
-        delete connect_db_screen;
-    }
+    delete connect_db_screen;
     delete music_repository;
     delete show_all_items_screen;
 }
