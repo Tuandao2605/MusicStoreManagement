@@ -5,23 +5,14 @@
 #include <cstdio>
 
 #include "music_store/music_repository.h"
-#include "ui/add_new_item/add_item_screen.h"
 #include "ui/all_items/show_all_items_screen.h"
 #include "ui/connect_db/connect_db_screen.h"
 #include "ui/core/screen.h"
-#include "ui/find/find_music_screen.h"
-#include "ui/home/home_screen.h"
-
-// #include "music_store/music_repository.h"
-// #include "ui/connect_db/connect_db_screen.h"
-// #include "ui/core/screen.h"
 
 Screen *current_screen = nullptr;
 ConnectDbScreen *connect_db_screen = nullptr;
 MusicRepository *music_repository = nullptr;
-HomeScreen *home_screen = nullptr;
-// ConnectDbScreen *connect_db_screen;
-// MusicRepository *music_repository = nullptr;
+ShowAllItemsScreen *show_all_items_screen = nullptr;
 
 static void glfw_error_callback(const int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -69,30 +60,7 @@ int main(int, char **) {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     initGraph();
-    music_repository = new MusicRepository();
-    home_screen = new HomeScreen(
-        [] { current_screen = new AddItemScreen(music_repository); },
-        [] { current_screen = new ShowAllItemsScreen(music_repository); },
-        [] {
-        },
-        [] {
-            current_screen = new FindMusicScreen(music_repository, [] {
-                current_screen = home_screen;
-            });
-        },
-        [] {
-        },
-        [] {
-        },
-        [] {
-        },
-        [] {
-        }
-    );
-    connect_db_screen = new ConnectDbScreen(music_repository, [] {
-        current_screen = home_screen;
-    });
-    current_screen = connect_db_screen;
+
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -132,13 +100,22 @@ void showMyApplicationWindow() {
 }
 
 void initGraph() {
-    // auto* music = new MusicRepository();
-    // music->CreateOrder();
-    // current_screen = connect_db_screen;
+    music_repository = new MusicRepository();
+    connect_db_screen = new ConnectDbScreen(music_repository, [] {
+        show_all_items_screen = new ShowAllItemsScreen(music_repository);
+        current_screen = show_all_items_screen;
+        connect_db_screen = nullptr;
+        delete connect_db_screen;
+    });
+    current_screen = connect_db_screen;
 }
 
 void clear() {
-    // delete current_screen;
-    // delete connect_db_screen;
-    // delete music_repository;
+    delete current_screen;
+    if (connect_db_screen) {
+        connect_db_screen = nullptr;
+        delete connect_db_screen;
+    }
+    delete music_repository;
+    delete show_all_items_screen;
 }
